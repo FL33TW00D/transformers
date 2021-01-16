@@ -286,10 +286,6 @@ class T5DenseGatedGeluDense(nn.Module):
                 clamp_value = torch.finfo(hidden_states.dtype).max - 1024
                 hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
         hidden_states = self.dropout(hidden_states)
-        if hidden_states.dtype == torch.float16:
-            if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
-                clamp_value = torch.finfo(hidden_states.dtype).max - 1024
-                hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
         hidden_states = self.wo(hidden_states)
         if torch.isinf(hidden_states).any():
             print('GELU OUTPUT INF')
@@ -320,6 +316,10 @@ class T5LayerFF(nn.Module):
             print('T5 LAYER FF INPUT NAN')
         forwarded_states = self.layer_norm(hidden_states)
         forwarded_states = self.DenseReluDense(forwarded_states)
+        if forwarded_states.dtype == torch.float16:
+            if torch.isinf(forwarded_states).any() or torch.isnan(forwarded_states).any():
+                clamp_value = torch.finfo(forwarded_states.dtype).max - 1024
+                hidden_states = torch.clamp(forwarded_states, min=-clamp_value, max=clamp_value)
         hidden_states = hidden_states + self.dropout(forwarded_states)
         if torch.isinf(hidden_states).any():
             print('T5 LAYER FF OUTPUT INF')
