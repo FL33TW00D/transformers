@@ -270,6 +270,10 @@ class T5DenseGatedGeluDense(nn.Module):
         self.gelu_act = ACT2FN["gelu_new"]
 
     def forward(self, hidden_states):
+        if torch.isinf(hidden_states).any():
+            print('GELU INPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('GELU INPUT NAN')
         if hidden_states.dtype == torch.float16:
             if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
                 clamp_value = torch.finfo(hidden_states.dtype).max - 1024
@@ -287,6 +291,10 @@ class T5DenseGatedGeluDense(nn.Module):
                 clamp_value = torch.finfo(hidden_states.dtype).max - 1024
                 hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
         hidden_states = self.wo(hidden_states)
+        if torch.isinf(hidden_states).any():
+            print('GELU OUTPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('GELU OUTPUT NAN')
         return hidden_states
 
 
@@ -306,9 +314,17 @@ class T5LayerFF(nn.Module):
         self.dropout = nn.Dropout(config.dropout_rate)
 
     def forward(self, hidden_states):
+        if torch.isinf(hidden_states).any():
+            print('T5 LAYER FF INPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('T5 LAYER FF INPUT NAN')
         forwarded_states = self.layer_norm(hidden_states)
         forwarded_states = self.DenseReluDense(forwarded_states)
         hidden_states = hidden_states + self.dropout(forwarded_states)
+        if torch.isinf(hidden_states).any():
+            print('T5 LAYER FF OUTPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('T5 LAYER FF OUTPUT NAN')
         return hidden_states
 
 
@@ -581,6 +597,10 @@ class T5LayerCrossAttention(nn.Module):
         query_length=None,
         output_attentions=False,
     ):
+        if torch.isinf(hidden_states).any():
+            print('CROSS ATTN INPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('CROSS ATTN INPUT NAN')
         normed_hidden_states = self.layer_norm(hidden_states)
         attention_output = self.EncDecAttention(
             normed_hidden_states,
