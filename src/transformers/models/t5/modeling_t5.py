@@ -274,7 +274,7 @@ class T5DenseGatedGeluDense(nn.Module):
         hidden_linear = self.wi_1(hidden_states)
         hidden_states = hidden_gelu * hidden_linear
         hidden_states = self.dropout(hidden_states)
-        if self.weight.dtype == torch.float16:
+        if hidden_states.dtype == torch.float16:
             if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
                 clamp_value = torch.finfo(hidden_states.dtype).max - 1024
                 hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
