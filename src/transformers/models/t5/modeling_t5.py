@@ -956,6 +956,11 @@ class T5Stack(T5PreTrainedModel):
         if inputs_embeds is None:
             assert self.embed_tokens is not None, "You have to initialize the model with valid token embeddings"
             inputs_embeds = self.embed_tokens(input_ids)
+        
+        if torch.isinf(inputs_embeds).any():
+            print('INPUT EMBEDS INF')
+        if torch.isnan(inputs_embeds).any():
+            print('INPUT EMBEDS NAN')
 
         batch_size, seq_length = input_shape
 
@@ -995,6 +1000,12 @@ class T5Stack(T5PreTrainedModel):
         all_cross_attentions = () if (output_attentions and self.is_decoder) else None
         position_bias = None
         encoder_decoder_position_bias = None
+
+        if torch.isinf(inputs_embeds).any():
+            print('T5 STACK BEFORE DROP INF')
+        if torch.isnan(inputs_embeds).any():
+            print('T5 STACK BEFORE DROP NAN')
+        
 
         hidden_states = self.dropout(inputs_embeds)
         if torch.isinf(hidden_states).any():
