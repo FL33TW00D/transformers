@@ -1555,7 +1555,12 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         """
         use_cache = use_cache if use_cache is not None else self.config.use_cache
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
+        if torch.isinf(self.shared).any():
+            print('SELF SHARED INF')
+        
+        if torch.isnan(self.shared).any():
+            print('SELF SHARED NAN')
+        
         # Encode if needed (training, first prediction pass)
         if encoder_outputs is None:
             # Convert encoder inputs in embeddings if needed
