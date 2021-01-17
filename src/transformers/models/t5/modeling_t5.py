@@ -260,6 +260,9 @@ class T5LayerNorm(nn.Module):
             if torch.isnan(hidden_states).any():
                 print('LAYER NORM CAST NAN')
 
+        print('LAYER NORM PROPS')
+        print(self.weight)
+        print(hidden_states)
         x = self.weight * hidden_states
         if torch.isinf(x).any():
             print('LAYER NORM OUTPUT INF')
