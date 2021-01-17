@@ -235,6 +235,10 @@ class T5LayerNorm(nn.Module):
         self.variance_epsilon = eps
 
     def forward(self, hidden_states):
+        if torch.isinf(hidden_states).any():
+            print('LAYER NORM INF')
+        if torch.isnan(hidden_states).any():
+            print('LAYER NORM NAN')
         # layer norm should always be calculated in float32
         variance = hidden_states.to(torch.float32).pow(2).mean(-1, keepdim=True)
         hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
@@ -242,6 +246,10 @@ class T5LayerNorm(nn.Module):
         # convert into float16 if necessary
         if self.weight.dtype == torch.float16:
             hidden_states = hidden_states.to(torch.float16)
+        if torch.isinf(hidden_states).any():
+            print('LAYER NORM INF')
+        if torch.isnan(hidden_states).any():
+            print('LAYER NORM NAN')
         return self.weight * hidden_states
 
 
