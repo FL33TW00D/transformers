@@ -322,6 +322,10 @@ class T5LayerFF(nn.Module):
                 clamp_value = torch.finfo(x.dtype).max - 1024
                 x = torch.clamp(x, min=-clamp_value, max=clamp_value)
         hidden_states = hidden_states + x
+        if hidden_states.dtype == torch.float16:
+            if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
+                clamp_value = torch.finfo(x.dtype).max - 1024
+                hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
         if torch.isinf(hidden_states).any():
             print('T5 LAYER FF OUTPUT INF')
         if torch.isnan(hidden_states).any():
