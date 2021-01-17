@@ -1050,6 +1050,10 @@ class T5Stack(T5PreTrainedModel):
             # hidden-states, key-value-states, (self-attention weights), (self-attention position bias), (cross-attention weights), (cross-attention position bias)
             hidden_states, present_key_value_state = layer_outputs[:2]
 
+            if torch.isinf(hidden_states).any():
+                print('T5STACK IN LOOP INF')
+            if torch.isnan(hidden_states).any():
+                print('T5STACK IN LOOP NAN')
             # We share the position biases between the layers - the first layer store them
             # layer_outputs = hidden-states, key-value-states (self-attention weights),
             # (self-attention position bias), (cross-attention weights), (cross-attention position bias)
@@ -1074,6 +1078,10 @@ class T5Stack(T5PreTrainedModel):
         hidden_states = self.final_layer_norm(hidden_states)
         hidden_states = self.dropout(hidden_states)
 
+        if torch.isinf(hidden_states).any():
+            print('T5STACK AFTER LOOP INF')
+        if torch.isnan(hidden_states).any():
+            print('T5STACK AFTER LOOP NAN')
         # Add last layer
         if output_hidden_states:
             all_hidden_states = all_hidden_states + (hidden_states,)
