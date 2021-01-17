@@ -690,7 +690,10 @@ class T5Block(nn.Module):
         output_attentions=False,
         return_dict=True,
     ):
-
+        if torch.isinf(hidden_states).any():
+            print('T5BLOCK INPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('T5BLOCK INPUT NAN')
         if past_key_value is not None:
             assert self.is_decoder, "Only decoder can use `past_key_values`"
             expected_num_past_key_values = 2 if encoder_hidden_states is None else 4
