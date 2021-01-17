@@ -959,8 +959,10 @@ class T5Stack(T5PreTrainedModel):
         
         if torch.isinf(inputs_embeds).any():
             print('INPUT EMBEDS INF')
+            print(f'DECODER: {self.is_decoder}')
         if torch.isnan(inputs_embeds).any():
             print('INPUT EMBEDS NAN')
+            print(f'DECODER: {self.is_decoder}')
 
         batch_size, seq_length = input_shape
 
@@ -1567,6 +1569,8 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
 
         hidden_states = encoder_outputs[0]
 
+        
+
         if self.model_parallel:
             torch.cuda.set_device(self.decoder.first_device)
 
@@ -1623,8 +1627,6 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
             sequence_output = sequence_output * (self.model_dim ** -0.5)
 
         lm_logits = self.lm_head(sequence_output)
-        print('LM_LOGITS')
-        print(lm_logits[0:100])
 
         loss = None
         if labels is not None:
