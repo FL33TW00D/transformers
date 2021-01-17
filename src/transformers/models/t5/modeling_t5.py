@@ -274,17 +274,9 @@ class T5DenseGatedGeluDense(nn.Module):
             print('GELU INPUT INF')
         if torch.isnan(hidden_states).any():
             print('GELU INPUT NAN')
-        if hidden_states.dtype == torch.float16:
-            if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
-                clamp_value = torch.finfo(hidden_states.dtype).max - 1024
-                hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
         hidden_gelu = self.gelu_act(self.wi_0(hidden_states))
         hidden_linear = self.wi_1(hidden_states)
         hidden_states = hidden_gelu * hidden_linear
-        if hidden_states.dtype == torch.float16:
-            if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
-                clamp_value = torch.finfo(hidden_states.dtype).max - 1024
-                hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
         hidden_states = self.dropout(hidden_states)
         if hidden_states.dtype == torch.float16:
             if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
@@ -587,6 +579,10 @@ class T5LayerSelfAttention(nn.Module):
             output_attentions=output_attentions,
         )
         hidden_states = hidden_states + self.dropout(attention_output[0])
+        if torch.isinf(hidden_states).any():
+            print('SELF ATTN OUTPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('SELF ATTN OUTPUT NAN')
         outputs = (hidden_states,) + attention_output[1:]  # add attentions if we output them
         return outputs
 
