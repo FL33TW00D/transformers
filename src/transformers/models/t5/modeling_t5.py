@@ -316,11 +316,12 @@ class T5LayerFF(nn.Module):
             print('T5 LAYER FF INPUT NAN')
         forwarded_states = self.layer_norm(hidden_states)
         forwarded_states = self.DenseReluDense(forwarded_states)
-        if forwarded_states.dtype == torch.float16:
-            if torch.isinf(forwarded_states).any() or torch.isnan(forwarded_states).any():
-                clamp_value = torch.finfo(forwarded_states.dtype).max - 1024
-                hidden_states = torch.clamp(forwarded_states, min=-clamp_value, max=clamp_value)
-        hidden_states = hidden_states + self.dropout(forwarded_states)
+        x = self.dropout(forwarded_states)
+        if x.dtype == torch.float16:
+            if torch.isinf(x).any() or torch.isnan(x).any():
+                clamp_value = torch.finfo(x.dtype).max - 1024
+                x = torch.clamp(x, min=-clamp_value, max=clamp_value)
+        hidden_states = hidden_states + x
         if torch.isinf(hidden_states).any():
             print('T5 LAYER FF OUTPUT INF')
         if torch.isnan(hidden_states).any():
