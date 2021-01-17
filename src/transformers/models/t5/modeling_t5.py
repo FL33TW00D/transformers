@@ -231,7 +231,7 @@ class T5LayerNorm(nn.Module):
         Construct a layernorm module in the T5 style No bias and no subtraction of mean.
         """
         super().__init__()
-        self.weight = nn.Parameter(torch.ones(hidden_size))
+        self.weight = nn.Parameter(torch.ones(hidden_size, dtype=float32))
         self.variance_epsilon = eps
 
     def forward(self, hidden_states):
