@@ -638,7 +638,17 @@ class T5LayerCrossAttention(nn.Module):
             query_length=query_length,
             output_attentions=output_attentions,
         )
-        layer_output = hidden_states + self.dropout(attention_output[0])
+        
+        x = self.dropout(attention_output[0])
+        if x.dtype == torch.float16:
+            if torch.isinf(x).any() or torch.isnan(x).any():
+                clamp_value = torch.finfo(x.dtype).max - 1024
+                x = torch.clamp(x, min=-clamp_value, max=clamp_value)
+        layer_output = hidden_states + x
+        if layer_output.dtype == torch.float16:
+            if torch.isinf(layer_output).any() or torch.isnan(layer_output).any():
+                clamp_value = torch.finfo(layer_output.dtype).max - 1024
+                layer_output = torch.clamp(layer_output, min=-clamp_value, max=clamp_value)
         if torch.isinf(layer_output).any():
             print('CROSS ATTN OUTPUT INF')
         if torch.isnan(layer_output).any():
