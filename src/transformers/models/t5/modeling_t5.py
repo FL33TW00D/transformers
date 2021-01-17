@@ -568,6 +568,10 @@ class T5LayerSelfAttention(nn.Module):
         use_cache=False,
         output_attentions=False,
     ):
+        if torch.isinf(hidden_states).any():
+            print('SELF ATTN INPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('SELF ATTN INPUT NAN')
         normed_hidden_states = self.layer_norm(hidden_states)
         attention_output = self.SelfAttention(
             normed_hidden_states,
@@ -585,6 +589,10 @@ class T5LayerSelfAttention(nn.Module):
                 clamp_value = torch.finfo(x.dtype).max - 1024
                 x = torch.clamp(x, min=-clamp_value, max=clamp_value)
         hidden_states = hidden_states + x
+        if hidden_states.dtype == torch.float16:
+            if torch.isinf(hidden_states).any() or torch.isnan(hidden_states).any():
+                clamp_value = torch.finfo(hidden_states.dtype).max - 1024
+                hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
 
         if torch.isinf(hidden_states).any():
             print('SELF ATTN OUTPUT INF')
@@ -631,6 +639,10 @@ class T5LayerCrossAttention(nn.Module):
             output_attentions=output_attentions,
         )
         layer_output = hidden_states + self.dropout(attention_output[0])
+        if torch.isinf(layer_output).any():
+            print('CROSS ATTN OUTPUT INF')
+        if torch.isnan(layer_output).any():
+            print('CROSS ATTN OUTPUT NAN')
         outputs = (layer_output,) + attention_output[1:]  # add attentions if we output them
         return outputs
 
