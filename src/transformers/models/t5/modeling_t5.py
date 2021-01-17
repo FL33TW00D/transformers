@@ -246,11 +246,12 @@ class T5LayerNorm(nn.Module):
         # convert into float16 if necessary
         if self.weight.dtype == torch.float16:
             hidden_states = hidden_states.to(torch.float16)
-        if torch.isinf(hidden_states).any():
+        x = self.weight * hidden_states
+        if torch.isinf(x).any():
             print('LAYER NORM INF')
-        if torch.isnan(hidden_states).any():
+        if torch.isnan(x).any():
             print('LAYER NORM NAN')
-        return self.weight * hidden_states
+        return x
 
 
 class T5DenseReluDense(nn.Module):
