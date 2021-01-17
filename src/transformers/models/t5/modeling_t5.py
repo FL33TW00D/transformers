@@ -1577,6 +1577,10 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
 
         hidden_states = encoder_outputs[0]
 
+        if torch.isinf(hidden_states).any():
+            print('T5 COND ENCODER OUTPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('T5 COND ENCODER OUTPUT NAN')
         
 
         if self.model_parallel:
@@ -1622,6 +1626,11 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
         )
 
         sequence_output = decoder_outputs[0]
+
+        if torch.isinf(hidden_states).any():
+            print('T5 COND DECODER OUTPUT INF')
+        if torch.isnan(hidden_states).any():
+            print('T5 COND DECODER OUTPUT NAN')
 
         # Set device for model parallelism
         if self.model_parallel:
