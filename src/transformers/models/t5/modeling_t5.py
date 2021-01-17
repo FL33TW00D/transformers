@@ -997,6 +997,11 @@ class T5Stack(T5PreTrainedModel):
         encoder_decoder_position_bias = None
 
         hidden_states = self.dropout(inputs_embeds)
+        if torch.isinf(hidden_states).any():
+            print('T5 STACK DROP INF')
+        if torch.isnan(hidden_states).any():
+            print('T5 STACK DROP NAN')
+        
 
         for i, (layer_module, past_key_value) in enumerate(zip(self.block, past_key_values)):
             # Model parallel
@@ -1607,6 +1612,8 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
             sequence_output = sequence_output * (self.model_dim ** -0.5)
 
         lm_logits = self.lm_head(sequence_output)
+        print('LM_LOGITS')
+        print(lm_logits[0:100])
 
         loss = None
         if labels is not None:
