@@ -974,7 +974,6 @@ class T5Stack(T5PreTrainedModel):
         if inputs_embeds is None:
             assert self.embed_tokens is not None, "You have to initialize the model with valid token embeddings"
             inputs_embeds = self.embed_tokens(input_ids)
-            print(inputs_embeds)
         
         if torch.isinf(inputs_embeds).any():
             print('INPUT EMBEDS INF')
